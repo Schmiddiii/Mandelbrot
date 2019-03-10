@@ -1,0 +1,2 @@
+# Mandelbrot
+Mandelbrotset in Go

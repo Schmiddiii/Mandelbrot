@@ -12,13 +12,14 @@ import (
 	"sync"
 )
 
-var xFrom, xDelta, yFrom, yDelta float64 //= -2, 3, -1.5, 3
+var xMiddle, xDelta, yMiddle, yDelta float64 //= -2, 3, -1.5, 3
 var width, height int
+var fileName string
 
 func main() {
 
-	flag.Float64Var(&xFrom, "x", -2, "Starting x-value")
-	flag.Float64Var(&yFrom, "y", -1.5, "Starting y-value")
+	flag.Float64Var(&xMiddle, "x", -.5, "Starting x-value")
+	flag.Float64Var(&yMiddle, "y", 0, "Starting y-value")
 
 	flag.Float64Var(&xDelta, "dx", 3, "Delta x-value")
 	flag.Float64Var(&yDelta, "dy", 3, "Delta y-value")
@@ -30,9 +31,11 @@ func main() {
 	flag.Uint64Var(&maxIter64, "i", 30, "Maximal Iterations")
 	maxIter := uint8(maxIter64)
 
+	flag.StringVar(&fileName, "file", "image", "Name of the outputfile")
+
 	flag.Parse()
 
-	fmt.Printf("Starting with x: %f, y: %f, dx: %f, dy: %f, i: %d\n", xFrom, xDelta, yFrom, yDelta, maxIter)
+	fmt.Printf("Starting with x: %f, y: %f, dx: %f, dy: %f, i: %d\n", xMiddle, xDelta, yMiddle, yDelta, maxIter)
 
 	upLeft := image.Point{0, 0}
 	lowRight := image.Point{width, height}
@@ -46,8 +49,8 @@ func main() {
 		go func(x int) {
 			for y := 0; y < height; y++ {
 				col := color.RGBA{}
-				mandelX := (float64(x)/float64(width))*xDelta + xFrom
-				mandelY := (float64(y)/float64(height))*yDelta + yFrom
+				mandelX := (float64(x)/float64(width))*xDelta + (xMiddle - .5*xDelta)
+				mandelY := (float64(y)/float64(height))*yDelta + (yMiddle - .5*yDelta)
 				iterationen := mandelbrot(mandelX, mandelY, mandelX, mandelY, int(maxIter))
 
 				if iterationen == maxIter {
@@ -67,7 +70,7 @@ func main() {
 
 	w.Wait()
 
-	f, err := os.Create("image.png")
+	f, err := os.Create(fileName + ".png")
 	if err != nil {
 		log.Fatal(err)
 	}
